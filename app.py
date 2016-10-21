@@ -25,7 +25,7 @@ def hello(name=None):
 @app.route('/projects/')
 def projects():
     if request.method == "GET":
-        return "You used the GET method. Project list"
+        return "You used the xxx  GET method. Project list"
     else:
         return "You did not use the GET method."
 
