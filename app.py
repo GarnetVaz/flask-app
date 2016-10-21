@@ -1,7 +1,8 @@
 from flask import Flask
 from flask import render_template
 from flask import request
-
+from flask import abort
+from flask import redirect, url_for
 
 app = Flask(__name__)
 
@@ -35,10 +36,29 @@ def about():
     return "About page."
 
 
+@app.route('/abort')
+def aborter():
+    abort(401)
+
+
 @app.route('/multiply')
 def multiply():
     params = request.args.get('key', '')
     return "You added param: %s" % params
+
+
+@app.errorhandler(401)
+def not_authorised(error):
+    return "Not authorised"
+
+
+@app.route('/login', methods=["POST"])
+def login():
+    if request.method == "POST":
+        name = request.form['username']
+        if name == "edna":
+            redirect(url_for(hello_world))
+
 
 if __name__ == "__main__":
     app.run(debug=True)
