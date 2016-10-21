@@ -17,7 +17,12 @@ def test_list(username):
     return 'User %s' % username
 
 
-@app.route('/hello/')
+@app.route('/signin')
+def signin():
+    return render_template('login.html')
+
+
+
 @app.route('/hello/<name>')
 def hello(name=None):
     return render_template('hello.html', name=name)
@@ -57,9 +62,12 @@ def not_authorised(error):
 def login():
     if request.method == "POST":
         name = request.form['username']
-        if name == "edna":
-            redirect(url_for(hello_world))
-
+        password = request.form['password']
+        print(name)
+        if name == "edna" and password == "test":
+            return "SignIn successful"
+        else:
+            abort(401)
 
 if __name__ == "__main__":
     app.run(debug=True)
