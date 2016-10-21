@@ -1,5 +1,7 @@
 from flask import Flask
 from flask import render_template
+from flask import url_for
+from flask import request
 
 app = Flask(__name__)
 
@@ -20,13 +22,21 @@ def hello(name=None):
 
 @app.route('/projects/')
 def projects():
-    return "Project list"
+    if request.method == "GET":
+        return "You used the GET method. Project list"
+    else:
+        return "You did not use the GET method."
 
 
 @app.route('/about')
 def about():
-    return "The about page"
+    return "About page."
 
+
+@app.route('/multiply')
+def multiply():
+    params = request.args.get('key', '')
+    return "You added param: %s" % params
 
 if __name__ == "__main__":
     app.run(debug=True)
