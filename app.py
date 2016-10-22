@@ -2,7 +2,9 @@ from flask import Flask
 from flask import render_template
 from flask import request
 from flask import abort
+from flask import redirect, url_for
 from flask import g
+from flask.json import jsonify
 import psycopg2 as pg
 
 app = Flask(__name__)
@@ -56,25 +58,30 @@ def initdb_command():
 def run_db_user_search():
     conn = get_db()
     cur = conn.cursor()
-    cur.execute('select * from users limit 1')
-    res = cur.fetchone()
+    cur.execute('select * from users limit 100')
+    res = cur.fetchall()
     return res
+
+
+def add_db_user(name, password):
+    conn = get_db()
+    cur = conn.cursor()
+    try:
+        cur.execute('insert into users (username, password) values (%s, %s)', name, password)
+    except:
+        pass
+    cur.close()
+    conn.commit()
 
 
 @app.route('/db')
 def db(name=None):
-    uuid, uname, passw = run_db_user_search()
-    return "User {0} Password {1} uuid {2}".format(uname, passw, uuid)
-
+    res = run_db_user_search()
+    return jsonify(res)
 
 @app.route('/')
 def hello_world():
     return "Hello world!"
-
-
-@app.route('/info/<username>')
-def test_list(username):
-    return 'User %s' % username
 
 
 @app.route('/signin')
@@ -85,47 +92,18 @@ def signin():
 def signup():
     return render_template('signup')
 
-@app.route('/hello/<name>')
-def hello(name=None):
-    return render_template('hello.html', name=name)
-
-
-@app.route('/projects/')
-def projects():
-    if request.method == "GET":
-
-        return "You used the xxx  GET method. Project list"
-    else:
-        return "You did not use the GET method."
-
-
-@app.route('/about')
-def about():
-    return "About page."
-
-
-@app.route('/abort')
-def aborter():
-    abort(401)
-
-
-@app.route('/multiply')
-def multiply():
-    params = request.args.get('key', '')
-    return "You added param: %s" % params
-
-
-@app.errorhandler(401)
-def not_authorised(error):
-    return "Not authorised"
-
+@app.route('/signupuser', methods=["POST"])
+def signupuser():
+    name = request.form['username']
+    password = request.form['password']
+    add_db_user(name, password)
+    redirect(url_for(db))
 
 @app.route('/login', methods=["POST"])
 def login():
     if request.method == "POST":
         name = request.form['username']
         password = request.form['password']
-        print(name)
         if name == "edna" and password == "test":
             return "SignIn successful"
         else:
