@@ -81,6 +81,9 @@ def test_list(username):
 def signin():
     return render_template('login.html')
 
+@app.route('/signup')
+def signup():
+    return render_template('signup')
 
 @app.route('/hello/<name>')
 def hello(name=None):
